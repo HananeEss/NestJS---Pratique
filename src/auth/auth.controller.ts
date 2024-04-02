@@ -1,27 +1,38 @@
 import { Body, Controller, Delete, Get, Param, Post, Put } from "@nestjs/common";
 import { AuthService } from './auth.service';
-import { CreateCatDto } from './auth.dto';
+import { UserDto } from './auth.dto';
+import { ApiResponse } from '@nestjs/swagger';
 
-@Controller('auth')
+@Controller('users')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
   @Get()
-  getUser() {
+  getUser(): Promise<object> {
     return this.authService.getUser();
   }
 
+  @Get(':id')
+  getUserById(@Param('id') id: string): Promise<object> {
+    return this.authService.getUserById(id);
+  }
+
   @Post('register')
-  registerUser(@Body() createCatDto: CreateCatDto) {
-    return this.authService.registerUser(createCatDto);
+  @ApiResponse({
+    status: 201,
+    description: 'The user has been successfully registered.',
+  })
+  @ApiResponse({ status: 403, description: 'Error user registration' })
+  registerUser(@Body() userDto: UserDto) {
+    return this.authService.registerUser(userDto);
   }
 
-  @Put(':username')
-  updateUser(@Param('username') username: string) {
-    return this.authService.updateUser(username);
+  @Put(':id')
+  updateUser(@Param('id') id: string, @Body() userDto: UserDto) {
+    return this.authService.updateUser(id, userDto);
   }
 
-  @Delete(':username1')
-  deleteUser(@Param('username1') username1: string) {
-    return this.authService.deleteUser(username1);
+  @Delete(':id')
+  deleteUser(@Param('id') id: string) {
+    return this.authService.deleteUser(id);
   }
 }
